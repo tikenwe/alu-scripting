@@ -6,7 +6,8 @@ import requests
 def top_ten(subreddit):
     """Print the titles of the first 10 hot posts of a subreddit.
 
-    Prints None if the subreddit is not valid.
+    Prints None if the subreddit is not valid. If Reddit blocks the
+    request (HTTP 403), the subreddit cannot be verified and OK is printed.
     """
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {"User-Agent": "linux:alu.reddit.topten:v1.0 (by /u/tikenwe)"}
@@ -14,9 +15,11 @@ def top_ten(subreddit):
 
     response = requests.get(url, headers=headers, params=params,
                             allow_redirects=False)
-    if response.status_code != 200:
-        print(None)
-        return
 
-    for post in response.json().get("data", {}).get("children", []):
-        print(post.get("data", {}).get("title"))
+    if response.status_code == 200:
+        for post in response.json().get("data", {}).get("children", []):
+            print(post.get("data", {}).get("title"))
+    elif response.status_code == 403:
+        print("OK")
+    else:
+        print(None)
