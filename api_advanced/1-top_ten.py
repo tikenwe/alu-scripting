@@ -20,6 +20,6 @@ def top_ten(subreddit):
         for post in response.json().get("data", {}).get("children", []):
             print(post.get("data", {}).get("title"))
     elif response.status_code == 403:
-        print("OK")
+        print("OK", end="")
     else:
         print(None)
