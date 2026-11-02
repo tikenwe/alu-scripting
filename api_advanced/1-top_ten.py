@@ -8,19 +8,15 @@ def top_ten(subreddit):
 
     Prints None if the subreddit is not valid.
     """
-    hosts = ["www.reddit.com", "old.reddit.com", "api.reddit.com"]
-    agents = ["linux:alu.reddit.topten:v1.0 (by /u/tikenwe)",
-              "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-              "Chrome/120 Safari/537.36",
-              "curl/8.0"]
-    for host in hosts:
-        for agent in agents:
-            url = "https://{}/r/{}/hot.json".format(host, subreddit)
-            try:
-                r = requests.get(url, headers={"User-Agent": agent},
-                                 params={"limit": 10},
-                                 allow_redirects=False, timeout=10)
-                print("DBG", host, agent[:6], r.status_code)
-            except requests.RequestException as e:
-                print("DBG", host, agent[:6], type(e).__name__)
-    print(None)
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    headers = {"User-Agent": "linux:alu.reddit.topten:v1.0 (by /u/tikenwe)"}
+    params = {"limit": 10}
+
+    response = requests.get(url, headers=headers, params=params,
+                            allow_redirects=False)
+    if response.status_code != 200:
+        print(None)
+        return
+
+    for post in response.json().get("data", {}).get("children", []):
+        print(post.get("data", {}).get("title"))
