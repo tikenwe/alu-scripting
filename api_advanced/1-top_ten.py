@@ -8,34 +8,15 @@ def top_ten(subreddit):
 
     Prints None if the subreddit is not valid.
     """
-    if subreddit is None or not isinstance(subreddit, str):
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    headers = {"User-Agent": "linux:alu.reddit.topten:v1.0 (by /u/tikenwe)"}
+    params = {"limit": 10}
+
+    response = requests.get(url, headers=headers, params=params,
+                            allow_redirects=False)
+    if response.status_code != 200:
         print(None)
         return
 
-    headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
-                             "AppleWebKit/537.36 Chrome/120 Safari/537.36"}
-    hosts = ["www.reddit.com", "old.reddit.com", "api.reddit.com"]
-
-    for host in hosts:
-        url = "https://{}/r/{}/hot.json".format(host, subreddit)
-        try:
-            response = requests.get(url, headers=headers,
-                                    params={"limit": 10},
-                                    allow_redirects=False, timeout=10)
-        except requests.RequestException:
-            continue
-
-        if response.status_code == 200:
-            try:
-                posts = response.json().get("data", {}).get("children", [])
-            except ValueError:
-                continue
-            for post in posts[:10]:
-                print(post.get("data", {}).get("title"))
-            return
-        if response.status_code in (301, 302, 303, 307, 308, 404):
-            print(None)
-            return
-        # 403/429 etc.: blocked, try the next host
-
-    print(None)
+    for post in response.json().get("data", {}).get("children", []):
+        print(post.get("data", {}).get("title"))
