@@ -20,20 +20,11 @@ def top_ten(subreddit):
         response = requests.get(
             url, headers=headers, params=params, allow_redirects=False
         )
-    except requests.RequestException as err:
-        print("DEBUG exception:", type(err).__name__, err)
-        print(None)
-        return
-
-    print("DEBUG status:", response.status_code, type(response))
-    if response.status_code != 200:
-        print(None)
-        return
-
-    try:
+        if response.status_code != 200:
+            print(None)
+            return
         posts = response.json().get("data", {}).get("children", [])
-    except ValueError:
-        print("DEBUG json failed")
+    except (requests.RequestException, ValueError):
         print(None)
         return
 
