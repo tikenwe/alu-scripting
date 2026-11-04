@@ -8,15 +8,34 @@ def top_ten(subreddit):
 
     Prints None if the subreddit is not valid.
     """
+    if subreddit is None or not isinstance(subreddit, str):
+        print(None)
+        return
+
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {"User-Agent": "linux:alu.reddit.topten:v1.0 (by /u/tikenwe)"}
     params = {"limit": 10}
 
-    response = requests.get(url, headers=headers, params=params,
-                            allow_redirects=False)
+    try:
+        response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False
+        )
+    except requests.RequestException as err:
+        print("DEBUG exception:", type(err).__name__, err)
+        print(None)
+        return
+
+    print("DEBUG status:", response.status_code, type(response))
     if response.status_code != 200:
         print(None)
         return
 
-    for post in response.json().get("data", {}).get("children", []):
+    try:
+        posts = response.json().get("data", {}).get("children", [])
+    except ValueError:
+        print("DEBUG json failed")
+        print(None)
+        return
+
+    for post in posts:
         print(post.get("data", {}).get("title"))
